@@ -1,0 +1,12 @@
+FROM 192.168.3.222:30500/platform/rakazo-app:v0.3.6
+USER root
+ENV NODE_ENV=development
+WORKDIR /app
+COPY . /app
+RUN CI=true pnpm install --frozen-lockfile
+RUN pnpm --filter @rakazo/db generate
+RUN pnpm --filter @rakazo/api --filter @rakazo/worker build
+RUN RAKAZO_ALLOW_DEV_SECRETS=1 pnpm --filter @rakazo/web build
+RUN chown -R node:node /app/apps/api/dist /app/apps/worker/dist /app/apps/web/dist
+ENV NODE_ENV=production
+USER node
