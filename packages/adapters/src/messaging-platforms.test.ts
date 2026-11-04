@@ -37,6 +37,9 @@ const fullEnv: MessagingEnvironmentValues = {
   larkVerificationToken: "lark-verify",
   photonProjectId: "photon-project",
   photonProjectSecret: "photon-secret",
+  wechatApiUrl: "https://lweixin.test",
+  wechatApiToken: "wechat-api-token",
+  wechatWebhookSecret: "wechat-webhook-secret",
 };
 
 function providers(env: MessagingEnvironmentValues): string[] {
@@ -53,6 +56,7 @@ describe("messagingPlatformsFromEnv", () => {
       "telegram",
       "lark",
       "photon",
+      "wechat",
     ]);
   });
 
@@ -107,6 +111,17 @@ describe("messagingPlatformsFromEnv", () => {
         larkVerificationToken: "lark-verify",
       }),
     ).toEqual(["lark"]);
+    for (const key of ["wechatApiUrl", "wechatApiToken", "wechatWebhookSecret"] as const) {
+      expect(providers({ ...fullEnv, [key]: undefined })).not.toContain("wechat");
+    }
+    expect(providers({ wechatApiUrl: "https://lweixin.test" })).toEqual([]);
+    expect(
+      providers({
+        wechatApiUrl: "https://lweixin.test",
+        wechatApiToken: "wechat-api-token",
+        wechatWebhookSecret: "wechat-webhook-secret",
+      }),
+    ).toEqual(["wechat"]);
   });
 
   it("forces Telegram into webhook mode so worker initialize cannot long-poll", () => {
@@ -385,6 +400,7 @@ describe("messagingPlatformsFromEnv", () => {
     });
     expect(capabilities.lark).toEqual({ direct: true, groups: false, receipt: null });
     expect(capabilities.photon).toEqual({ direct: true, groups: false, receipt: "typing" });
+    expect(capabilities.wechat).toEqual({ direct: true, groups: false, receipt: null });
   });
 });
 
