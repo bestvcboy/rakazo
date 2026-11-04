@@ -1,11 +1,12 @@
 # Chat apps
 
-Message your bots from Slack, Telegram, WhatsApp, iMessage or SMS, and add them to group chats
+Message your bots from Slack, Telegram, WhatsApp, iMessage or SMS, or WeChat, and add them to group chats
 there.
 
 > [!NOTE]
 > **Settings → Messaging** appears only when your server has at least one chat app set up. Which
-> apps you see depends on the server: Slack, Telegram, WhatsApp, iMessage and SMS, and Feishu (Lark)
+> apps you see depends on the server: Slack, Telegram, WhatsApp, iMessage and SMS, Feishu (Lark),
+> and WeChat through a lweixin bridge.
 > are supported. On a self-hosted server the operator configures them; see
 > [Self-hosting](./self-host.md).
 

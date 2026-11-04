@@ -25,6 +25,7 @@ import { LazyLarkAdapter } from "./lark/lazy-adapter.js";
 import { Domain } from "./lark/thread-id.js";
 import { LazyPhotonAdapter } from "./photon/lazy-adapter.js";
 import { isVitestRuntime } from "./test-runtime.js";
+import { createWechatAdapter } from "./wechat/wechat-adapter.js";
 
 /**
  * Parsed platform credentials, filled from process.env at the composition
@@ -57,6 +58,9 @@ export interface MessagingEnvironmentValues {
   photonWebhookSecret?: string | undefined;
   /** Extra named Photon projects (PHOTON_PROJECT_ID_<NAME>), each with its own number. */
   photonProjects?: PhotonProjectCredentials[] | undefined;
+  wechatApiUrl?: string | undefined;
+  wechatApiToken?: string | undefined;
+  wechatWebhookSecret?: string | undefined;
 }
 
 export function messagingEnvFromProcess(
@@ -89,6 +93,9 @@ export function messagingEnvFromProcess(
     photonProjectSecret: clean(env.PHOTON_PROJECT_SECRET),
     photonWebhookSecret: clean(env.PHOTON_WEBHOOK_SECRET),
     photonProjects: photonProjectsFromEnv(env),
+    wechatApiUrl: clean(env.WECHAT_API_URL),
+    wechatApiToken: clean(env.WECHAT_API_TOKEN),
+    wechatWebhookSecret: clean(env.WECHAT_WEBHOOK_SECRET),
   };
 }
 
@@ -374,6 +381,20 @@ export function messagingPlatformsFromEnv(
         projectSecret: project.projectSecret,
         webhookSecret: project.webhookSecret,
         pollInboundMessages: options.pollInboundMessages ?? false,
+      }),
+    });
+  }
+
+  // lweixin is the transport; the provider stays `wechat` so the rest of the
+  // surface (link codes, identities, outbox) never learns about the bridge.
+  if (env.wechatApiUrl && env.wechatApiToken && env.wechatWebhookSecret) {
+    platforms.push({
+      provider: "wechat",
+      capabilities: { direct: true, groups: false, receipt: null },
+      adapter: createWechatAdapter({
+        apiUrl: env.wechatApiUrl,
+        apiToken: env.wechatApiToken,
+        webhookSecret: env.wechatWebhookSecret,
       }),
     });
   }
